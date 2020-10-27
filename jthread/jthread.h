@@ -5,10 +5,16 @@
 #define JTHREAD_H
 
 #include "stop_token.h"
+#if defined (__MINGW32__) || defined (__MINGW64__)
+#include "mingw.thread.h"
+#include "mingw.future.h"
+#include "mingw.invoke.h"
+#else
 #include <thread>
 #include <future>
-#include <type_traits>
 #include <functional>  // for invoke()
+#endif
+#include <type_traits>
 #include <iostream>    // for debugging output
 
 namespace std {
@@ -171,4 +177,4 @@ inline void jthread::swap(jthread& t) noexcept {
 
 } // std
 
-#endif // JTHREAD_HPP
+#endif

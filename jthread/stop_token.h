@@ -2,21 +2,25 @@
 // <stop_token> header
 
 #include <atomic>
+#if defined (__MINGW32__) || defined (__MINGW64__)
+#include "mingw.thread.h"
+#else
 #include <thread>
+#endif
 #include <type_traits>
 #include <utility>
 #ifdef SAFE
 #include <iostream>
 #endif
 
-#if defined(__x86_64__) || defined(_M_X64)
+#if defined (__x86_64__) || defined (_M_X64)
 #include <immintrin.h>
 #endif
 
 namespace std {
 inline void __spin_yield() noexcept {
   // TODO: Platform-specific code here
-#if defined(__x86_64__) || defined(_M_X64)
+#if defined (__x86_64__) || defined (_M_X64)
   _mm_pause();
 #endif
 }

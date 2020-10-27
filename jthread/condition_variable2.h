@@ -8,7 +8,11 @@
 // forward declarations are in separate header due to cyclic type dependencies:
 //*****************************************************************************
 #include "stop_token.h"
+#if defined (__MINGW32__) || defined (__MINGW64__)
+#include "mingw.condition_variable.h"
+#else
 #include <condition_variable>
+#endif
 #include <iostream>
 
 namespace std {
@@ -296,4 +300,4 @@ inline bool condition_variable_any2::wait_for(Lockable& lock,
 
 } // std
 
-#endif // CONDITION_VARIABLE2_HPP
+#endif
