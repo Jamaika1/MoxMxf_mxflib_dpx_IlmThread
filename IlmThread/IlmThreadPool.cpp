@@ -47,7 +47,16 @@
 #ifndef ILMBASE_FORCE_CXX03
 # include <memory>
 # include <atomic>
-# include <thread>
+# if defined(__MINGW32__) || defined(__MINGW64__)
+#  ifdef ILMBASE_FORCE_CXX17
+#   define SAFE
+#   include "jthread.h"
+#  else
+#   include "mingw.thread.h" // ILMBASE_FORCE_CXX20
+#  endif
+# else
+#  include <thread>
+# endif
 #else
 # ifndef _WIN32
 #  include <unistd.h>
@@ -58,7 +67,7 @@ using namespace std;
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-#if defined(__GNU_LIBRARY__) && ( __GLIBC__ < 2 || ( __GLIBC__ == 2 && __GLIBC_MINOR__ < 21 ) )
+#if defined (__GNU_LIBRARY__) && ( __GLIBC__ < 2 || ( __GLIBC__ == 2 && __GLIBC_MINOR__ < 21 ) )
 # define ENABLE_SEM_DTOR_WORKAROUND
 #endif
 
@@ -75,7 +84,7 @@ struct TaskGroup::Data
     int              numPending;     // number of pending tasks to still execute
 #endif
     Semaphore        isEmpty;        // used to signal that the taskgroup is empty
-#if defined(ENABLE_SEM_DTOR_WORKAROUND) || defined(ILMBASE_FORCE_CXX03)
+#if defined (ENABLE_SEM_DTOR_WORKAROUND) || defined (ILMBASE_FORCE_CXX03)
     // this mutex is also used to lock numPending in the legacy c++ mode...
     Mutex            dtorMutex;      // used to work around the glibc bug:
                                      // http://sources.redhat.com/bugzilla/show_bug.cgi?id=12674
@@ -215,7 +224,11 @@ struct DefaultWorkData
 //
 // class WorkerThread
 //
+#if defined (ILMBASE_FORCE_CXX17) || defined (ILMBASE_FORCE_CXX20)
+class DefaultWorkerThread: public jthread
+#else
 class DefaultWorkerThread: public Thread
+#endif
 {
   public:
 
@@ -863,17 +876,19 @@ ThreadPool::addGlobalTask (Task* task)
 unsigned
 ThreadPool::estimateThreadCountForFileIO ()
 {
-#ifdef ILMBASE_FORCE_CXX03
-#    if defined (_WIN32) || defined (_WIN64)
+#if defined (ILMBASE_FORCE_CXX17) || defined (ILMBASE_FORCE_CXX20)
+    return std::jthread::hardware_concurrency ();
+#elif defined (ILMBASE_FORCE_CXX03)
+#   if defined (_WIN32) || defined (_WIN64)
     SYSTEM_INFO sysinfo;
     GetSystemInfo (&sysinfo);
     return static_cast<unsigned> (sysinfo.dwNumberOfProcessors);
-#    elif defined(_SC_NPROCESSORS_ONLN)
+#   elif defined (_SC_NPROCESSORS_ONLN)
     int count = sysconf (_SC_NPROCESSORS_ONLN);
     return static_cast<unsigned>( count < 0 ? 0 : count );
-#    else
+#   else
     return 0;
-#    endif
+#   endif
 #else
     return std::thread::hardware_concurrency ();
 #endif

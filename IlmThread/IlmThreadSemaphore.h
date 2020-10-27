@@ -46,7 +46,7 @@
 #include "IlmThreadExport.h"
 #include "IlmThreadNamespace.h"
 
-#if defined _WIN32 || defined _WIN64
+#if defined (_WIN32) || defined (_WIN64)
 #   ifdef NOMINMAX
 #      undef NOMINMAX
 #   endif
@@ -56,7 +56,7 @@
 
 #ifdef HAVE_POSIX_SEMAPHORES
 #   include <semaphore.h>
-#elif defined(__APPLE__)
+#elif defined (__APPLE__)
 #   include <dispatch/dispatch.h>
 #else
 #   ifdef ILMBASE_FORCE_CXX03
@@ -64,8 +64,18 @@
 #         include <pthread.h>
 #      endif
 #   else
-#      include <mutex>
-#      include <condition_variable>
+#      if defined (__MINGW32__) || defined (__MINGW64__)
+#         ifdef ILMBASE_FORCE_CXX17
+#            define SAFE
+#            include "condition_variable2.h"
+#         else
+#            include "mingw.mutex.h"
+#            include "mingw.condition_variable.h"
+#         endif
+#      else
+#         include <mutex>
+#         include <condition_variable>
+#      endif
 #   endif
 #endif
 
@@ -90,11 +100,11 @@ class ILMTHREAD_EXPORT Semaphore
 
 	mutable HANDLE _semaphore;
 
-#elif defined(HAVE_POSIX_SEMAPHORES)
+#elif defined (HAVE_POSIX_SEMAPHORES)
 
 	mutable sem_t _semaphore;
 
-#elif defined(__APPLE__)
+#elif defined (__APPLE__)
 	mutable dispatch_semaphore_t _semaphore;
 
 #else
@@ -107,10 +117,10 @@ class ILMTHREAD_EXPORT Semaphore
 	{
 	    unsigned int count;
 	    unsigned long numWaiting;
-#   if ILMBASE_FORCE_CXX03
-#      if HAVE_PTHREAD
-	    pthread_mutex_t mutex;
-	    pthread_cond_t nonZero;
+#   ifdef ILMBASE_FORCE_CXX03
+#      ifdef HAVE_PTHREAD
+	      pthread_mutex_t mutex;
+	      pthread_cond_t nonZero;
 #      else
 #         error unhandled legacy setup
 #      endif
@@ -131,4 +141,4 @@ class ILMTHREAD_EXPORT Semaphore
 
 ILMTHREAD_INTERNAL_NAMESPACE_HEADER_EXIT
 
-#endif // INCLUDED_ILM_THREAD_SEMAPHORE_H
+#endif

@@ -44,8 +44,8 @@
 
 #ifdef ILMBASE_FORCE_CXX03
 #   ifdef HAVE_PTHREAD
-#      include "Iex.h"
-#      include <assert.h>
+#         include "Iex.h"
+#         include <assert.h>
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
 

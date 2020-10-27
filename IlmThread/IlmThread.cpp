@@ -47,7 +47,81 @@
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
 
-#ifndef ILMBASE_FORCE_CXX03
+#if defined (ILMBASE_FORCE_CXX17) || defined (ILMBASE_FORCE_CXX20)
+//-----------------------------------------------------------------------------
+// C++17 and newer implementation
+//-----------------------------------------------------------------------------
+bool
+supportsThreads ()
+{
+    return true;
+}
+
+jthread::jthread ()
+{
+    // empty
+}
+
+
+jthread::~jthread ()
+{
+    // hopefully the thread has basically exited and we are just
+    // cleaning up, because run is a virtual function, so the v-table
+    // has already been partly destroyed...
+    if ( _thread.joinable () )
+        _thread.join ();
+}
+
+void
+jthread::join()
+{
+    if ( _thread.joinable () )
+        _thread.join ();
+}
+
+void
+jthread::start ()
+{
+    _thread = std::jthread (&jthread::run, this);
+}
+
+#elif defined (ILMBASE_FORCE_CXX03)
+#   if !defined (_WIN32) && !defined (_WIN64) && !defined (HAVE_PTHREAD)
+//-----------------------------------------------------------------------------
+// OPENEXR_FORCE_CXX03 with no windows / pthread support
+//-----------------------------------------------------------------------------
+bool
+supportsThreads ()
+{
+    return false;
+}
+
+
+Thread::Thread ()
+{
+    throw IEX_NAMESPACE::NoImplExc ("Threads not supported on this platform.");
+}
+
+
+Thread::~Thread ()
+{
+    throw IEX_NAMESPACE::NoImplExc ("Threads not supported on this platform.");
+}
+
+
+void
+Thread::start ()
+{
+    throw IEX_NAMESPACE::NoImplExc ("Threads not supported on this platform.");
+}
+
+void
+Thread::join ()
+{
+    throw IEX_NAMESPACE::NoImplExc ("Threads not supported on this platform.");
+}
+#   endif
+#else
 //-----------------------------------------------------------------------------
 // C++11 and newer implementation
 //-----------------------------------------------------------------------------
@@ -84,43 +158,6 @@ Thread::start ()
 {
     _thread = std::thread (&Thread::run, this);
 }
-
-#else
-#   if !defined (_WIN32) && !defined (_WIN64) && ! defined(HAVE_PTHREAD)
-//-----------------------------------------------------------------------------
-// OPENEXR_FORCE_CXX03 with no windows / pthread support
-//-----------------------------------------------------------------------------
-bool
-supportsThreads ()
-{
-    return false;
-}
-
-
-Thread::Thread ()
-{
-    throw IEX_NAMESPACE::NoImplExc ("Threads not supported on this platform.");
-}
-
-
-Thread::~Thread ()
-{
-    throw IEX_NAMESPACE::NoImplExc ("Threads not supported on this platform.");
-}
-
-
-void
-Thread::start ()
-{
-    throw IEX_NAMESPACE::NoImplExc ("Threads not supported on this platform.");
-}
-
-void
-Thread::join ()
-{
-    throw IEX_NAMESPACE::NoImplExc ("Threads not supported on this platform.");
-}
-#   endif
 #endif
 
 

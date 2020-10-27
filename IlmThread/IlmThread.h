@@ -95,18 +95,27 @@
 #include "IlmThreadNamespace.h"
 
 #ifdef ILMBASE_FORCE_CXX03
-#   if (defined (_WIN32) || defined (_WIN64)) && !defined(HAVE_PTHREAD)
+#   if (defined (_WIN32) || defined (_WIN64)) && !defined (HAVE_PTHREAD)
 #       ifdef NOMINMAX
 #          undef NOMINMAX
 #       endif
 #       define NOMINMAX
 #       include <windows.h>
 #       include <process.h>
-#   elif HAVE_PTHREAD
+#   elif defined (HAVE_PTHREAD)
 #      include <pthread.h>
 #   endif
 #else
-#   include <thread>
+#   if defined (__MINGW32__) || defined (__MINGW64__)
+#      ifdef ILMBASE_FORCE_CXX17
+#         define SAFE
+#         include "jthread.h"
+#      else
+#         include "mingw.thread.h" // ILMBASE_FORCE_CXX20
+#      endif
+#   else
+#      include <thread>
+#   endif
 #endif
 
 ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER
@@ -119,12 +128,21 @@ ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER
 ILMTHREAD_EXPORT bool supportsThreads ();
 
 
+#if defined (ILMBASE_FORCE_CXX17) || defined (ILMBASE_FORCE_CXX20)
+class jthread
+{
+  public:
+
+    ILMTHREAD_EXPORT jthread ();
+    ILMTHREAD_EXPORT virtual ~jthread ();
+#else
 class Thread
 {
   public:
 
     ILMTHREAD_EXPORT Thread ();
     ILMTHREAD_EXPORT virtual ~Thread ();
+#endif
 
     ILMTHREAD_EXPORT void         start ();
     ILMTHREAD_EXPORT virtual void run () = 0;
@@ -137,24 +155,33 @@ class Thread
   private:
 
 #ifdef ILMBASE_FORCE_CXX03
-#   if (defined (_WIN32) || defined (_WIN64)) && !defined (HAVE_PTHREAD)
+#   if (defined (_WIN32) || defined (_WIN64)) && defined (HAVE_PTHREAD)
 	HANDLE _thread;
-#   elif HAVE_PTHREAD
+#   else
 	pthread_t _thread;
 #   endif
     void operator = (const Thread& t);	// not implemented
     Thread (const Thread& t);		// not implemented
 #else
+#   if defined (ILMBASE_FORCE_CXX17) || defined (ILMBASE_FORCE_CXX20)
+    std::jthread _thread;
+
+    jthread &operator= (const jthread& t) = delete;
+    jthread &operator= (jthread&& t) = delete;
+    jthread (const jthread& t) = delete;
+    jthread (jthread&& t) = delete;
+#   else
     std::thread _thread;
 
     Thread &operator= (const Thread& t) = delete;
     Thread &operator= (Thread&& t) = delete;
     Thread (const Thread& t) = delete;
     Thread (Thread&& t) = delete;
+#   endif
 #endif
 };
 
 
 ILMTHREAD_INTERNAL_NAMESPACE_HEADER_EXIT
 
-#endif // INCLUDED_ILM_THREAD_H
+#endif

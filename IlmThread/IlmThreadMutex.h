@@ -82,7 +82,11 @@
 #      include <pthread.h>
 #   endif
 #else
-#   include <mutex>
+#   if defined (__MINGW32__) || defined (__MINGW64__)
+#      include "mingw.mutex.h"
+#   else
+#      include <mutex>
+#   endif
 #endif
 
 ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER
@@ -119,7 +123,7 @@ class ILMTHREAD_EXPORT Mutex
 
     #if (defined (_WIN32) || defined (_WIN64)) && !defined (HAVE_PTHREAD)
 	mutable CRITICAL_SECTION _mutex;
-    #elif defined (HAVE_PTHREAD)
+    #else
 	mutable pthread_mutex_t _mutex;
     #endif
 
@@ -182,4 +186,4 @@ class ILMTHREAD_EXPORT Lock
 
 ILMTHREAD_INTERNAL_NAMESPACE_HEADER_EXIT
 
-#endif // INCLUDED_ILM_THREAD_MUTEX_H
+#endif

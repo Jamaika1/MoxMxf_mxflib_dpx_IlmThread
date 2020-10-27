@@ -42,7 +42,7 @@
 #include "IlmThreadMutex.h"
 
 #ifdef ILMBASE_FORCE_CXX03
-#    if ((defined _WIN32 || defined _WIN64) && !defined(__MINGW64_VERSION_MAJOR))
+#   if ((defined (_WIN32) || defined (_WIN64)) && !defined (__MINGW64_VERSION_MAJOR))
 #        include "Iex.h"
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_ENTER
@@ -76,5 +76,5 @@ Mutex::unlock () const
 
 ILMTHREAD_INTERNAL_NAMESPACE_SOURCE_EXIT
 
-#    endif // _WIN32
+#   endif
 #endif
