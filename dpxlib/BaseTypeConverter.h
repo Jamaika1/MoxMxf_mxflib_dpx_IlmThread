@@ -57,137 +57,137 @@ namespace dpx
 	// For bit depth demotions, simple truncation is used.
 	//
 
-	inline void BaseTypeConverter(U8 &src, U8 &dst)
+	inline void BaseTypeConverter(const U8 &src, U8 &dst)
 	{
 		dst = src;
 	}
 
-	inline void BaseTypeConverter(U8 &src, U16 &dst)
+	inline void BaseTypeConverter(const U8 &src, U16 &dst)
 	{
 		dst = (src << 8) | src;
 	}
 
-	inline void BaseTypeConverter(U8 &src, U32 &dst)
+	inline void BaseTypeConverter(const U8 &src, U32 &dst)
 	{
 		dst = (src << 24) | (src << 16) | (src << 8) | src;
 	}
 
-	inline void BaseTypeConverter(U8 &src, R32 &dst)
+	inline void BaseTypeConverter(const U8 &src, R32 &dst)
 	{
 		dst = src;
 	}
 
-	inline void BaseTypeConverter(U8 &src, R64 &dst)
+	inline void BaseTypeConverter(const U8 &src, R64 &dst)
 	{
 		dst = src;
 	}
 
-	inline void BaseTypeConverter(U16 &src, U8 &dst)
+	inline void BaseTypeConverter(const U16 &src, U8 &dst)
 	{
 		dst = src >> 8;
 	}
 
-	inline void BaseTypeConverter(U16 &src, U16 &dst)
+	inline void BaseTypeConverter(const U16 &src, U16 &dst)
 	{
 		dst = src;
 	}
 
-	inline void BaseTypeConverter(U16 &src, U32 &dst)
+	inline void BaseTypeConverter(const U16 &src, U32 &dst)
 	{
 		dst = (src << 16) | src;
 	}
 
-	inline void BaseTypeConverter(U16 &src, R32 &dst)
+	inline void BaseTypeConverter(const U16 &src, R32 &dst)
 	{
 		dst = src;
 	}
 
-	inline void BaseTypeConverter(U16 &src, R64 &dst)
+	inline void BaseTypeConverter(const U16 &src, R64 &dst)
 	{
 		dst = src;
 	}
 
-	inline void BaseTypeConverter(U32 &src, U8 &dst)
+	inline void BaseTypeConverter(const U32 &src, U8 &dst)
 	{
 		dst = src >> 24;
 	}
 
-	inline void BaseTypeConverter(U32 &src, U16 &dst)
+	inline void BaseTypeConverter(const U32 &src, U16 &dst)
 	{
 		dst = src >> 16;
 	}
 
-	inline void BaseTypeConverter(U32 &src, U32 &dst)
+	inline void BaseTypeConverter(const U32 &src, U32 &dst)
 	{
 		dst = src;
 	}
 
-	inline void BaseTypeConverter(U32 &src, R32 &dst)
+	inline void BaseTypeConverter(const U32 &src, R32 &dst)
 	{
 		dst = src;
 	}
 
-	inline void BaseTypeConverter(U32 &src, R64 &dst)
+	inline void BaseTypeConverter(const U32 &src, R64 &dst)
 	{
 		dst = src;
 	}
 
-	inline void BaseTypeConverter(R32 &src, U8 &dst)
+	inline void BaseTypeConverter(const R32 &src, U8 &dst)
 	{
 		dst = src;
 	}
 
-	inline void BaseTypeConverter(R32 &src, U16 &dst)
+	inline void BaseTypeConverter(const R32 &src, U16 &dst)
 	{
 		dst = src;
 	}
 
-	inline void BaseTypeConverter(R32 &src, U32 &dst)
+	inline void BaseTypeConverter(const R32 &src, U32 &dst)
 	{
 		dst = src;
 	}
 
-	inline void BaseTypeConverter(R32 &src, R32 &dst)
+	inline void BaseTypeConverter(const R32 &src, R32 &dst)
 	{
 		dst = src;
 	}
 
-	inline void BaseTypeConverter(R32 &src, R64 &dst)
+	inline void BaseTypeConverter(const R32 &src, R64 &dst)
 	{
 		dst = src;
 	}
 
-	inline void BaseTypeConverter(R64 &src, U8 &dst)
+	inline void BaseTypeConverter(const R64 &src, U8 &dst)
 	{
 		dst = src;
 	}
 
-	inline void BaseTypeConverter(R64 &src, U16 &dst)
+	inline void BaseTypeConverter(const R64 &src, U16 &dst)
 	{
 		dst = src;
 	}
 
-	inline void BaseTypeConverter(R64 &src, U32 &dst)
+	inline void BaseTypeConverter(const R64 &src, U32 &dst)
 	{
 		dst = src;
 	}
 
-	inline void BaseTypeConverter(R64 &src, R32 &dst)
+	inline void BaseTypeConverter(const R64 &src, R32 &dst)
 	{
 		dst = src;
 	}
 
-	inline void BaseTypeConverter(R64 &src, R64 &dst)
+	inline void BaseTypeConverter(const R64 &src, R64 &dst)
 	{
 		dst = src;
 	}
 
-	inline void BaseTypeConvertU10ToU16(U16 &src, U16 &dst)
+	inline void BaseTypeConvertU10ToU16(const U16 &src, U16 &dst)
 	{
 		dst = (src << 6) | (src >> 4);
 	}
 
-	inline void BaseTypeConvertU12ToU16(U16 &src, U16 &dst)
+	inline void BaseTypeConvertU12ToU16(const U16 &src, U16 &dst)
 	{
 		dst = (src << 4) | (src >> 8);
 	}
