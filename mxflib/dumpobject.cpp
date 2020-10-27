@@ -26,8 +26,8 @@
  */
 #include "dumpobject.h"
 
-#include "utility.h"
-using namespace utility;
+//#include "utility.h"
+//using namespace utility;
 
 #include "mxflib.h"
 using namespace mxflib;
