@@ -677,7 +677,6 @@ namespace mxflib
 		if(*Filename == '/') return true;
 		return false;
 	}
-
 #endif // _WIN32
 } //end of namespace mxflib
 
@@ -694,6 +693,7 @@ namespace mxflib
 #include <assert.h>
 #define ASSERT assert		// use -DNDEBUG
 
+#ifndef _WIN32
 /** Operating system name for non-windows platforms **/
 
 namespace mxflib
@@ -719,6 +719,7 @@ namespace mxflib
 }
 
 #endif // not _WIN32
+#endif // not _MSC_VER
 
 /************************************************/
 /************************************************/
