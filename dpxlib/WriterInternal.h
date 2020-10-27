@@ -38,13 +38,14 @@
 
 
 #include "BaseTypeConverter.h"
+#include "DPXExport.h"
 
 
 namespace dpx
 {
 
 
-	void EndianBufferSwap(int bitdepth, dpx::Packing packing, void *buf, const size_t size)
+	DPX_EXPORT void EndianBufferSwap(int bitdepth, dpx::Packing packing, void *buf, const size_t size)
 	{
 		switch (bitdepth)
 		{
@@ -66,7 +67,7 @@ namespace dpx
 
 
 	template <typename T1, typename T2>
-	void MultiTypeBufferCopy(T1 *dst, T2 *src, const int len)
+	DPX_EXPORT void MultiTypeBufferCopy(T1 *dst, T2 *src, const int len)
 	{
 		for (int i = 0; i < len; i++)
 			BaseTypeConverter(src[i], dst[i]);
@@ -74,7 +75,7 @@ namespace dpx
 
 
 	template <typename IB>
-	void CopyWriteBuffer(DataSize src_size, unsigned char *src, IB * dst, const int len)
+	DPX_EXPORT void CopyWriteBuffer(DataSize src_size, unsigned char *src, IB * dst, const int len)
 	{
 		if (src_size == kByte)
 			MultiTypeBufferCopy<IB, U8>(dst, reinterpret_cast<U8 *>(src), len);
@@ -100,7 +101,7 @@ namespace dpx
 
 	// \todo NOT DONE
 	template <typename IB, int BITDEPTH>
-	void RleCompress(IB *src, IB *dst, const int bufsize, const int len, BufferAccess &access)
+	DPX_EXPORT void RleCompress(IB *src, IB *dst, const int bufsize, const int len, BufferAccess &access)
 	{
 		IB ch;
 		int count;
@@ -141,7 +142,7 @@ namespace dpx
 
 
 	template <typename IB, int BITDEPTH>
-	void WritePackedMethod(IB *src, IB *dst, const int len, const bool reverse, BufferAccess &access)
+	DPX_EXPORT void WritePackedMethod(IB *src, IB *dst, const int len, const bool reverse, BufferAccess &access)
 	{
 		// pack into the same memory space
 		U32 *dst_u32 = reinterpret_cast<U32*>(dst);
@@ -202,7 +203,7 @@ namespace dpx
 
 	// this routine expects a type of U16
 	template <typename IB, Packing METHOD>
-	void WritePackedMethodAB_10bit(IB *src, IB *dst, const int len, const bool reverse, BufferAccess &access)
+	DPX_EXPORT void WritePackedMethodAB_10bit(IB *src, IB *dst, const int len, const bool reverse, BufferAccess &access)
 	{
 		// pack into the same memory space
 		U32 *dst_u32 = reinterpret_cast<U32*>(dst);
@@ -254,7 +255,7 @@ namespace dpx
 
 
 	template <typename IB, int BITDEPTH, bool SAMEBUFTYPE>
-	int WriteBuffer(OutStream *fd, DataSize src_size, void *src_buf, const U32 width, const U32 height, const int noc, const Packing packing,
+	DPX_EXPORT int WriteBuffer(OutStream *fd, DataSize src_size, void *src_buf, const U32 width, const U32 height, const int noc, const Packing packing,
 					const bool rle, const bool reverse, const int eolnPad, char *blank, bool &status, bool swapEndian)
 	{
 		int fileOffset = 0;
@@ -367,7 +368,7 @@ namespace dpx
 
 
 	template <typename IB, int BITDEPTH, bool SAMEBUFTYPE>
-	int WriteFloatBuffer(OutStream *fd, DataSize src_size, void *src_buf, const U32 width, const U32 height, const int noc, const Packing packing,
+	DPX_EXPORT int WriteFloatBuffer(OutStream *fd, DataSize src_size, void *src_buf, const U32 width, const U32 height, const int noc, const Packing packing,
 					const bool rle, const int eolnPad, char *blank, bool &status, bool swapEndian)
 	{
 		int fileOffset = 0;

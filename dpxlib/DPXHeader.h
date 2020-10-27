@@ -1512,8 +1512,6 @@ namespace dpx
 		return 2048;
 	}
 
-
-
 	inline U32 GenericHeader::MagicNumber() const
 	{
 		return this->magicNumber;

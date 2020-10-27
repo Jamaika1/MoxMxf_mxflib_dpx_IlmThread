@@ -53,7 +53,7 @@ using namespace IlmThread;
 
 
 
-dpx::Reader::Reader() : fd(0), rio(0)
+DPX_EXPORT dpx::Reader::Reader() : fd(0), rio(0)
 {
 	// initialize all of the Codec* to NULL
 	for (int i = 0; i < MAX_ELEMENTS; i++)
@@ -61,13 +61,13 @@ dpx::Reader::Reader() : fd(0), rio(0)
 }
 
 
-dpx::Reader::~Reader()
+DPX_EXPORT dpx::Reader::~Reader()
 {
 	this->Reset();
 }
 
 
-void dpx::Reader::Reset()
+DPX_EXPORT void dpx::Reader::Reset()
 {
 	// delete all of the Codec * entries
 	for (int i = 0; i < MAX_ELEMENTS; i++)
@@ -88,20 +88,20 @@ void dpx::Reader::Reset()
 }
 
 
-void dpx::Reader::SetInStream(InStream *fd)
+DPX_EXPORT void dpx::Reader::SetInStream(InStream *fd)
 {
 	this->fd = fd;
 	this->Reset();
 }
 
 
-bool dpx::Reader::ReadHeader()
+DPX_EXPORT bool dpx::Reader::ReadHeader()
 {
 	return this->header.Read(this->fd);
 }
 
 
-bool dpx::Reader::ReadImage(const int element, void *data)
+DPX_EXPORT bool dpx::Reader::ReadImage(const int element, void *data)
 {
 	// make sure the range is good
 	if (element < 0 || element >= MAX_ELEMENTS)
@@ -115,7 +115,7 @@ bool dpx::Reader::ReadImage(const int element, void *data)
 }
 
 
-bool dpx::Reader::ReadImage(void *data, const DataSize size, const Descriptor desc)
+DPX_EXPORT bool dpx::Reader::ReadImage(void *data, const DataSize size, const Descriptor desc)
 {
 	Block block(0, 0, this->header.Width()-1, this->header.Height()-1);
 	return this->ReadBlock(data, size, block, desc);
@@ -129,7 +129,7 @@ bool dpx::Reader::ReadImage(void *data, const DataSize size, const Descriptor de
   */
 
 
-bool dpx::Reader::ReadBlock(const int element, unsigned char *data, Block &block)
+DPX_EXPORT bool dpx::Reader::ReadBlock(const int element, unsigned char *data, Block &block)
 {
 	// make sure the range is good
 	if (element < 0 || element >= MAX_ELEMENTS)
@@ -173,7 +173,7 @@ class EndianSwapImageBufferTask : public Task
 
 */
 
-bool dpx::Reader::ReadBlock(void *data, const DataSize size, Block &block, const Descriptor desc)
+DPX_EXPORT bool dpx::Reader::ReadBlock(void *data, const DataSize size, Block &block, const Descriptor desc)
 {
 	int i;
 	int element;
@@ -274,7 +274,7 @@ bool dpx::Reader::ReadBlock(void *data, const DataSize size, Block &block, const
 
 
 
-bool dpx::Reader::ReadUserData(unsigned char *data)
+DPX_EXPORT bool dpx::Reader::ReadUserData(unsigned char *data)
 {
 	// check to make sure there is some user data
 	if (this->header.UserSize() == 0)

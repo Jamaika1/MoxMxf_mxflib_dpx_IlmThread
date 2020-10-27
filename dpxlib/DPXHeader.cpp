@@ -62,19 +62,19 @@ char Hex(char x)
 
 
 
-dpx::Header::Header() : GenericHeader(), IndustryHeader(), datumSwap(true)
+DPX_EXPORT dpx::Header::Header() : GenericHeader(), IndustryHeader(), datumSwap(true)
 {
 }
 
 
 
-dpx::GenericHeader::GenericHeader()
+DPX_EXPORT dpx::GenericHeader::GenericHeader()
 {
 	this->Reset();
 }
 
 
-void dpx::GenericHeader::Reset()
+DPX_EXPORT void dpx::GenericHeader::Reset()
 {
 	// File Information
 	this->magicNumber = MAGIC_COOKIE;
@@ -128,13 +128,13 @@ void dpx::GenericHeader::Reset()
 }
 
 
-dpx::IndustryHeader::IndustryHeader()
+DPX_EXPORT dpx::IndustryHeader::IndustryHeader()
 {
 	this->Reset();
 }
 
 
-void dpx::IndustryHeader::Reset()
+DPX_EXPORT void dpx::IndustryHeader::Reset()
 {
 	// Motion Picture Industry Specific
 	EmptyString(this->filmManufacturingIdCode, 2);
@@ -162,7 +162,7 @@ void dpx::IndustryHeader::Reset()
 }
 
 
-dpx::ImageElement::ImageElement()
+DPX_EXPORT dpx::ImageElement::ImageElement()
 {
 	this->dataSign = 0xffffffff;
 	this->lowData = 0xffffffff;
@@ -179,7 +179,7 @@ dpx::ImageElement::ImageElement()
 }
 
 
-bool dpx::Header::Read(InStream *io)
+DPX_EXPORT bool dpx::Header::Read(InStream *io)
 {
 	// rewind file
 	io->Rewind();
@@ -196,7 +196,7 @@ bool dpx::Header::Read(InStream *io)
 
 // Check to see if the compiler placed the data members in the expected memory offsets
 
-bool dpx::Header::Check()
+DPX_EXPORT bool dpx::Header::Check()
 {
 	// genericSize is the size of the file/image/orientation headers
 	// sizeof(dpx::GenericHeader) won't give the correct results because
@@ -223,7 +223,7 @@ bool dpx::Header::Check()
 
 
 
-bool dpx::Header::Write(OutStream *io)
+DPX_EXPORT bool dpx::Header::Write(OutStream *io)
 {
 	// validate and byte swap, if necessary
 	if (!this->Validate())
@@ -240,7 +240,7 @@ bool dpx::Header::Write(OutStream *io)
 }
 
 
-bool dpx::Header::WriteOffsetData(OutStream *io)
+DPX_EXPORT bool dpx::Header::WriteOffsetData(OutStream *io)
 {
 	// calculate the number of elements
 	this->CalculateNumberOfElements();
@@ -308,7 +308,7 @@ bool dpx::Header::WriteOffsetData(OutStream *io)
 }
 
 
-bool dpx::Header::ValidMagicCookie(const U32 magic)
+DPX_EXPORT bool dpx::Header::ValidMagicCookie(const U32 magic)
 {
 	U32 mc = MAGIC_COOKIE;
 
@@ -321,7 +321,7 @@ bool dpx::Header::ValidMagicCookie(const U32 magic)
 }
 
 
-bool dpx::Header::DetermineByteSwap(const U32 magic) const
+DPX_EXPORT bool dpx::Header::DetermineByteSwap(const U32 magic) const
 {
 	U32 mc = MAGIC_COOKIE;
 
@@ -334,7 +334,7 @@ bool dpx::Header::DetermineByteSwap(const U32 magic) const
 }
 
 
-bool dpx::Header::Validate()
+DPX_EXPORT bool dpx::Header::Validate()
 {
 	// check magic cookie
 	if (!this->ValidMagicCookie(this->magicNumber))
@@ -423,14 +423,14 @@ bool dpx::Header::Validate()
 
 
 
-void dpx::Header::Reset()
+DPX_EXPORT void dpx::Header::Reset()
 {
 	GenericHeader::Reset();
 	IndustryHeader::Reset();
 }
 
 
-int dpx::GenericHeader::ImageElementComponentCount(const int element) const
+DPX_EXPORT int dpx::GenericHeader::ImageElementComponentCount(const int element) const
 {
 	int count = 1;
 
@@ -495,7 +495,7 @@ int dpx::GenericHeader::ImageElementComponentCount(const int element) const
 }
 
 
-int dpx::GenericHeader::ImageElementCount() const
+DPX_EXPORT int dpx::GenericHeader::ImageElementCount() const
 {
 	if(this->numberOfElements>0 && this->numberOfElements<=MAX_ELEMENTS)
 		return this->numberOfElements;
@@ -516,7 +516,7 @@ int dpx::GenericHeader::ImageElementCount() const
 }
 
 
-void dpx::GenericHeader::CalculateNumberOfElements()
+DPX_EXPORT void dpx::GenericHeader::CalculateNumberOfElements()
 {
 	this->numberOfElements = 0xffff;
 	int i = this->ImageElementCount();
@@ -528,7 +528,7 @@ void dpx::GenericHeader::CalculateNumberOfElements()
 }
 
 
-void dpx::Header::CalculateOffsets()
+DPX_EXPORT void dpx::Header::CalculateOffsets()
 {
 	int i;
 
@@ -543,7 +543,7 @@ void dpx::Header::CalculateOffsets()
 }
 
 
-dpx::DataSize dpx::GenericHeader::ComponentDataSize(const int element) const
+DPX_EXPORT dpx::DataSize dpx::GenericHeader::ComponentDataSize(const int element) const
 {
 	if (element < 0 || element >= MAX_ELEMENTS)
 		return kByte;
@@ -576,7 +576,7 @@ dpx::DataSize dpx::GenericHeader::ComponentDataSize(const int element) const
 }
 
 
-int dpx::GenericHeader::ComponentByteCount(const int element) const
+DPX_EXPORT int dpx::GenericHeader::ComponentByteCount(const int element) const
 {
 	if (element < 0 || element >= MAX_ELEMENTS)
 		return kByte;
@@ -609,7 +609,7 @@ int dpx::GenericHeader::ComponentByteCount(const int element) const
 }
 
 
-int dpx::GenericHeader::DataSizeByteCount(const DataSize ds)
+DPX_EXPORT int dpx::GenericHeader::DataSizeByteCount(const DataSize ds)
 {
 
 	int ret;
@@ -641,7 +641,7 @@ int dpx::GenericHeader::DataSizeByteCount(const DataSize ds)
 }
 
 
-void dpx::IndustryHeader::FilmEdgeCode(char *edge) const
+DPX_EXPORT void dpx::IndustryHeader::FilmEdgeCode(char *edge) const
 {
 	edge[0] = this->filmManufacturingIdCode[0];
 	edge[1] = this->filmManufacturingIdCode[1];
@@ -663,7 +663,7 @@ void dpx::IndustryHeader::FilmEdgeCode(char *edge) const
 }
 
 
-void dpx::IndustryHeader::SetFileEdgeCode(const char *edge)
+DPX_EXPORT void dpx::IndustryHeader::SetFileEdgeCode(const char *edge)
 {
 	this->filmManufacturingIdCode[0] = edge[0];
 	this->filmManufacturingIdCode[1] = edge[1];
@@ -684,7 +684,7 @@ void dpx::IndustryHeader::SetFileEdgeCode(const char *edge)
 }
 
 
-void dpx::IndustryHeader::TimeCode(char *str) const
+DPX_EXPORT void dpx::IndustryHeader::TimeCode(char *str) const
 {
 	register U32 tc = this->timeCode;
 	::sprintf(str, "%c%c:%c%c:%c%c:%c%c",
@@ -695,7 +695,7 @@ void dpx::IndustryHeader::TimeCode(char *str) const
 }
 
 
-void dpx::IndustryHeader::UserBits(char *str) const
+DPX_EXPORT void dpx::IndustryHeader::UserBits(char *str) const
 {
 	register U32 ub = this->userBits;
 	::sprintf(str, "%c%c:%c%c:%c%c:%c%c",
@@ -706,7 +706,7 @@ void dpx::IndustryHeader::UserBits(char *str) const
 }
 
 
-dpx::U32 dpx::IndustryHeader::TCFromString(const char *str) const
+DPX_EXPORT dpx::U32 dpx::IndustryHeader::TCFromString(const char *str) const
 {
 	// make sure the string is the correct length
 	if (::strlen(str) != 11)
@@ -738,7 +738,7 @@ dpx::U32 dpx::IndustryHeader::TCFromString(const char *str) const
 }
 
 
-void dpx::IndustryHeader::SetTimeCode(const char *str)
+DPX_EXPORT void dpx::IndustryHeader::SetTimeCode(const char *str)
 {
 	U32 tc = this->TCFromString(str);
 	if (tc != 0xffffffff)
@@ -746,7 +746,7 @@ void dpx::IndustryHeader::SetTimeCode(const char *str)
 }
 
 
-void dpx::IndustryHeader::SetUserBits(const char *str)
+DPX_EXPORT void dpx::IndustryHeader::SetUserBits(const char *str)
 {
 	U32 ub = this->TCFromString(str);
 	if (ub != 0xffffffff)
@@ -762,7 +762,7 @@ static void EmptyString(char *str, const int len)
 }
 
 
-void dpx::GenericHeader::SetCreationTimeDate(const long sec)
+DPX_EXPORT void dpx::GenericHeader::SetCreationTimeDate(const long sec)
 {
 	struct tm *tm_time;
 	char str[32];
@@ -778,7 +778,7 @@ void dpx::GenericHeader::SetCreationTimeDate(const long sec)
 }
 
 
-void dpx::GenericHeader::SetSourceTimeDate(const long sec)
+DPX_EXPORT void dpx::GenericHeader::SetSourceTimeDate(const long sec)
 {
 	struct tm *tm_time;
 	char str[32];
@@ -795,7 +795,7 @@ void dpx::GenericHeader::SetSourceTimeDate(const long sec)
 
 
 
-bool dpx::Header::DatumSwap(const int element) const
+DPX_EXPORT bool dpx::Header::DatumSwap(const int element) const
 {
 	if (this->datumSwap)
 	{
@@ -806,7 +806,7 @@ bool dpx::Header::DatumSwap(const int element) const
 }
 
 
-void dpx::Header::SetDatumSwap(const bool swap)
+DPX_EXPORT void dpx::Header::SetDatumSwap(const bool swap)
 {
 	this->datumSwap = swap;
 }
@@ -816,7 +816,7 @@ void dpx::Header::SetDatumSwap(const bool swap)
 // if an image is 1920x1080 but is oriented top to bottom, left to right then the height stored
 // in the image is 1920 rather than 1080
 
-dpx::U32 dpx::Header::Height() const
+DPX_EXPORT dpx::U32 dpx::Header::Height() const
 {
 	U32 h;
 
@@ -842,7 +842,7 @@ dpx::U32 dpx::Header::Height() const
 // if an image is 1920x1080 but is oriented top to bottom, left to right then the width stored
 // in the image is 1920 rather than 1080
 
-dpx::U32 dpx::Header::Width() const
+DPX_EXPORT dpx::U32 dpx::Header::Width() const
 {
 	U32 w;
 

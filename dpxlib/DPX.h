@@ -42,6 +42,7 @@
 
 #include "DPXHeader.h"
 #include "DPXStream.h"
+#include "DPXExport.h"
 
 
 /*!
@@ -187,31 +188,31 @@ namespace dpx
 		/*!
 		 * \brief Constructor
 		 */
-		Reader();
+		DPX_EXPORT Reader();
 
 		/*!
 		 * \brief Destructor
 		 */
-		virtual ~Reader();
+		DPX_EXPORT virtual ~Reader();
 
 		/*!
 		 * \brief Set the InStream object to be used to read images
 		 *
 		 * \param stream Object to use for low level reads
 		 */
-		void SetInStream(InStream *stream);
+		DPX_EXPORT void SetInStream(InStream *stream);
 
 		/*!
 		 * \brief clear any caching or memory allocated specific to an image
 		 */
-		void Reset();
+		DPX_EXPORT void Reset();
 
 		/*!
 		 * \brief Read the dpx header into the header member
 		 *
 		 * \return success true/false
 		 */
-		bool ReadHeader();
+		DPX_EXPORT bool ReadHeader();
 
 		/*!
 		 * \brief Read an image element into a buffer
@@ -224,7 +225,7 @@ namespace dpx
 		 * \param data buffer
 		 * \return success true/false
 		 */
-		bool ReadImage(const int element, void *data);
+		DPX_EXPORT bool ReadImage(const int element, void *data);
 
 		/*!
 		 * \brief Read an image element into a buffer that matches the image description type
@@ -238,7 +239,7 @@ namespace dpx
 		 * \param desc element description type
 		 * \return success true/false
 		 */
-		bool ReadImage(void *data, const DataSize size = kWord,
+		DPX_EXPORT bool ReadImage(void *data, const DataSize size = kWord,
 			const Descriptor desc = kRGB);
 
 		/*!
@@ -249,7 +250,7 @@ namespace dpx
 		 * \param block image area to read
 		 * \return success true/false
 		 */
-		bool ReadBlock(const int element, unsigned char *data, Block &block);
+		DPX_EXPORT bool ReadBlock(const int element, unsigned char *data, Block &block);
 
 		/*!
 		 * \brief Read a rectangular image block into a buffer from the image element
@@ -261,7 +262,7 @@ namespace dpx
 		 * \param desc element description type
 		 * \return success true/false
 		 */
-		bool ReadBlock(void *data, const DataSize size, Block &block,
+		DPX_EXPORT bool ReadBlock(void *data, const DataSize size, Block &block,
 			const Descriptor desc = kRGB);
 
 		/*!
@@ -272,7 +273,7 @@ namespace dpx
 		 * \param data buffer
 		 * \return success true/false
 		 */
-		bool ReadUserData(unsigned char *data);
+		DPX_EXPORT bool ReadUserData(unsigned char *data);
 
 
 	protected:
@@ -308,17 +309,17 @@ namespace dpx
 		/*!
 		 * \brief Constructor
 		 */
-		Writer();
+		DPX_EXPORT Writer();
 
 		/*!
 		 * \brief Destructor
 		 */
-		virtual ~Writer();
+		DPX_EXPORT virtual ~Writer();
 
 		/*!
 		 * \brief Start defining the header and writing the images
 		 */
-		void Start();
+		DPX_EXPORT void Start();
 
 		/*!
 		 * \brief Set the basic file information about DPX
@@ -335,7 +336,7 @@ namespace dpx
 		 * \param encryptKey encryption key
 		 * \param swapEndian whether to write the image header in reverse to native endianness
 		 */
-		void SetFileInfo(const char *fileName, const char *creationTimeDate = 0, const char *creator = 0,
+		DPX_EXPORT void SetFileInfo(const char *fileName, const char *creationTimeDate = 0, const char *creator = 0,
 			const char *project = 0, const char *copyright = 0, const U32 encryptKey = ~0,
 			const bool swapEndian = false);
 
@@ -345,13 +346,13 @@ namespace dpx
 		 * \param width width of the image
 		 * \param height height of the image
 		 */
-		void SetImageInfo(const U32 width, const U32 height);
+		DPX_EXPORT void SetImageInfo(const U32 width, const U32 height);
 
 		/*!
 		 * \brief Get the next available element
 		 * \return next available
 		 */
-		int NextAvailElement() const;
+		DPX_EXPORT int NextAvailElement() const;
 
 
 		/*!
@@ -374,7 +375,7 @@ namespace dpx
 		 * \param eolnPadding end of line padding (in bytes)
 		 * \param eoimPadding end of image padding (in bytes)
 		 */
-		void SetElement(const int element = 0,
+		DPX_EXPORT void SetElement(const int element = 0,
 			const Descriptor desc = kRGB,
 			const U8 bitDepth = 10,
 			const Characteristic transfer = kLogarithmic,
@@ -391,21 +392,21 @@ namespace dpx
 		 *
 		 * \param stream OutStream object
 		 */
-		void SetOutStream(OutStream *stream);
+		DPX_EXPORT void SetOutStream(OutStream *stream);
 
 		/*!
 		 * \brief Set the size of the user data area
 		 *
 		 * \param size size of user data
 		 */
-		void SetUserData(const long size);
+		DPX_EXPORT void SetUserData(const long size);
 
 		/*!
 		 * \brief Write the header
 		 *
 		 * \return success true/false
 		 */
-		bool WriteHeader();
+		DPX_EXPORT bool WriteHeader();
 
 		/*!
 		 * \brief Write the user data
@@ -413,7 +414,7 @@ namespace dpx
 		 * \param data buffer - must match size set in Writer::SetUserData()
 		 * \return success true/false
 		 */
-		bool WriteUserData(void *data);
+		DPX_EXPORT bool WriteUserData(void *data);
 
 		/*!
 		 * \brief Write the entire element to the dpx file
@@ -422,16 +423,16 @@ namespace dpx
 		 * \param data buffer
 		 * \return success true/false
 		 */
-		bool WriteElement(const int element, void *data);
-		bool WriteElement(const int element, void *data, const DataSize size);
-		bool WriteElement(const int element, void *data, const long count);
+		DPX_EXPORT bool WriteElement(const int element, void *data);
+		DPX_EXPORT bool WriteElement(const int element, void *data, const DataSize size);
+		DPX_EXPORT bool WriteElement(const int element, void *data, const long count);
 
 		/**
 		 * \brief Finish up writing image
 		 *
 		 * \return success true/false
 		 */
-		bool Finish();
+		DPX_EXPORT bool Finish();
 
 
 	protected:

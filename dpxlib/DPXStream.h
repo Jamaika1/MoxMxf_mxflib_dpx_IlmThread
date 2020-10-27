@@ -41,6 +41,7 @@
 
 #include <cstdio>
 
+#include "DPXExport.h"
 
 
 /*!
@@ -67,24 +68,28 @@ class InStream
 	/*!
 	 * \brief Constructor
 	 */
-	InStream();
+
+    DPX_EXPORT InStream();
 
 	/*!
 	 * \brief Destructor
 	 */
-	virtual ~InStream();
+
+    DPX_EXPORT virtual ~InStream();
 
 	/*!
 	 * \brief Open file
 	 * \param fn File name
 	 * \return success true/false
 	 */
-	virtual bool Open(const char * fn);
+
+    DPX_EXPORT virtual bool Open(const char * fn);
 
 	/*!
 	 * \brief Close file
 	 */
-	virtual void Close();
+
+    DPX_EXPORT virtual void Close();
 
 	/*!
 	 * \brief Rewind file pointer to beginning of file
@@ -151,34 +156,38 @@ class OutStream
 	/*!
 	 * \brief Constructor
 	 */
-	OutStream();
+
+    DPX_EXPORT OutStream();
 
 	/*!
 	 * \brief Destructor
 	 */
-	virtual ~OutStream();
+
+    DPX_EXPORT virtual ~OutStream();
 
 	/*!
 	 * \brief Open file
 	 * \param fn File name
 	 * \return success true/false
 	 */
-	virtual bool Open(const char *fn);
+
+    DPX_EXPORT virtual bool Open(const char *fn);
 
 	/*!
 	 * \brief Close file
 	 */
-	virtual void Close();
 
-	/*!
-	 * \brief Write data to file
-	 * \param buf data buffer
-	 * \param size bytes to write
-	 * \return number of bytes written
-	 */
-	virtual size_t Write(void * buf, const size_t size);
+    DPX_EXPORT virtual void Close();
 
-	/*!
+    /*!
+     * \brief Write data to file
+     * \param buf data buffer
+     * \param size bytes to write
+     * \return number of bytes written
+     */
+    virtual size_t Write(void * buf, const size_t size);
+
+    /*!
 	 * \brief Seek to a position in the file
 	 * \param offset offset from originating position
 	 * \param origin originating position

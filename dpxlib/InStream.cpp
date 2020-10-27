@@ -39,17 +39,17 @@
 #include "DPXStream.h"
 
 
-InStream::InStream() : fp(0)
+DPX_EXPORT InStream::InStream() : fp(0)
 {
 }
 
 
-InStream::~InStream()
+DPX_EXPORT InStream::~InStream()
 {
 }
 
 
-bool InStream::Open(const char *f)
+DPX_EXPORT bool InStream::Open(const char *f)
 {
 	if (this->fp)
 		this->Close();
@@ -60,7 +60,7 @@ bool InStream::Open(const char *f)
 }
 
 
-void InStream::Close()
+DPX_EXPORT void InStream::Close()
 {
 	if (this->fp)
 	{

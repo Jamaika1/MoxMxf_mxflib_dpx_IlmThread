@@ -42,22 +42,22 @@
 
 
 
-dpx::Writer::Writer() : fileLoc(0)
+DPX_EXPORT dpx::Writer::Writer() : fileLoc(0)
 {
 }
 
 
-dpx::Writer::~Writer()
+DPX_EXPORT dpx::Writer::~Writer()
 {
 }
 
 
-void dpx::Writer::Start()
+DPX_EXPORT void dpx::Writer::Start()
 {
 }
 
 
-void dpx::Writer::SetFileInfo(const char *fileName, const char *creationTimeDate, const char *creator,
+DPX_EXPORT void dpx::Writer::SetFileInfo(const char *fileName, const char *creationTimeDate, const char *creator,
 			const char *project, const char *copyright, const U32 encryptKey, const bool swapEndian)
 {
 	if (fileName)
@@ -87,7 +87,7 @@ void dpx::Writer::SetFileInfo(const char *fileName, const char *creationTimeDate
 }
 
 
-void dpx::Writer::SetImageInfo(const U32 width, const U32 height)
+DPX_EXPORT void dpx::Writer::SetImageInfo(const U32 width, const U32 height)
 {
 	this->header.SetImageOrientation(kLeftToRightTopToBottom);
 	this->header.SetPixelsPerLine(width);
@@ -96,7 +96,7 @@ void dpx::Writer::SetImageInfo(const U32 width, const U32 height)
 
 
 // returns next available or MAX_ELEMENTS if full
-int dpx::Writer::NextAvailElement() const
+DPX_EXPORT int dpx::Writer::NextAvailElement() const
 {
 	unsigned int i;
 
@@ -110,13 +110,13 @@ int dpx::Writer::NextAvailElement() const
 }
 
 
-void dpx::Writer::SetOutStream(OutStream *fd)
+DPX_EXPORT void dpx::Writer::SetOutStream(OutStream *fd)
 {
 	this->fd = fd;
 }
 
 
-bool dpx::Writer::WriteHeader()
+DPX_EXPORT bool dpx::Writer::WriteHeader()
 {
 	// calculate any header info
 	this->header.CalculateOffsets();
@@ -132,20 +132,20 @@ bool dpx::Writer::WriteHeader()
 }
 
 
-void dpx::Writer::SetUserData(const long size)
+DPX_EXPORT void dpx::Writer::SetUserData(const long size)
 {
 	// TODO
 }
 
 
-bool dpx::Writer::WriteUserData(void *data)
+DPX_EXPORT bool dpx::Writer::WriteUserData(void *data)
 {
 	// XXX TODO
 	return false;
 }
 
 
-void dpx::Writer::SetElement(const int num, const Descriptor desc, const U8 bitDepth,
+DPX_EXPORT void dpx::Writer::SetElement(const int num, const Descriptor desc, const U8 bitDepth,
 			const Characteristic transfer, const Characteristic colorimetric,
 			const Packing packing, const Encoding encoding, const U32 dataSign,
 			const U32 lowData, const R32 lowQuantity,
@@ -178,7 +178,7 @@ void dpx::Writer::SetElement(const int num, const Descriptor desc, const U8 bitD
 
 // the data is processed so write it straight through
 // argument count is total size in bytes of the passed data
-bool dpx::Writer::WriteElement(const int element, void *data, const long count)
+DPX_EXPORT bool dpx::Writer::WriteElement(const int element, void *data, const long count)
 {
 	// make sure the range is good
 	if (element < 0 || element >= MAX_ELEMENTS)
@@ -198,7 +198,7 @@ bool dpx::Writer::WriteElement(const int element, void *data, const long count)
 
 
 
-bool dpx::Writer::WriteElement(const int element, void *data)
+DPX_EXPORT bool dpx::Writer::WriteElement(const int element, void *data)
 {
 	// make sure the range is good
 	if (element < 0 || element >= MAX_ELEMENTS)
@@ -213,7 +213,7 @@ bool dpx::Writer::WriteElement(const int element, void *data)
 
 
 
-bool dpx::Writer::WriteElement(const int element, void *data, const DataSize size)
+DPX_EXPORT bool dpx::Writer::WriteElement(const int element, void *data, const DataSize size)
 {
 	bool status = true;
 
@@ -344,7 +344,7 @@ bool dpx::Writer::WriteElement(const int element, void *data, const DataSize siz
 
 // the passed in image buffer is written to the file untouched
 
-bool dpx::Writer::WriteThrough(void *data, const U32 width, const U32 height, const int noc, const int bytes, const U32 eolnPad, const U32 eoimPad, char *blank)
+DPX_EXPORT bool dpx::Writer::WriteThrough(void *data, const U32 width, const U32 height, const int noc, const int bytes, const U32 eolnPad, const U32 eoimPad, char *blank)
 {
 	bool status = true;
 	const int count = width * height * noc;
@@ -397,7 +397,7 @@ bool dpx::Writer::WriteThrough(void *data, const U32 width, const U32 height, co
 
 
 
-bool dpx::Writer::Finish()
+DPX_EXPORT bool dpx::Writer::Finish()
 {
 	// write the file size in the header
 	this->header.SetFileSize(this->fileLoc);

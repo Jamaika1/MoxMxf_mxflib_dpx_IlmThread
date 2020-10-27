@@ -38,17 +38,17 @@
 #include "DPXStream.h"
 
 
-OutStream::OutStream() : fp(0)
+DPX_EXPORT OutStream::OutStream() : fp(0)
 {
 }
 
 
-OutStream::~OutStream()
+DPX_EXPORT OutStream::~OutStream()
 {
 }
 
 
-bool OutStream::Open(const char *f)
+DPX_EXPORT bool OutStream::Open(const char *f)
 {
 	if (this->fp)
 		this->Close();
@@ -59,7 +59,7 @@ bool OutStream::Open(const char *f)
 }
 
 
-void OutStream::Close()
+DPX_EXPORT void OutStream::Close()
 {
 	if (this->fp)
 	{
@@ -75,7 +75,6 @@ size_t OutStream::Write(void *buf, const size_t size)
 		return false;
 	return ::fwrite(buf, 1, size, this->fp);
 }
-
 
 bool OutStream::Seek(long offset, Origin origin)
 {
@@ -97,7 +96,6 @@ bool OutStream::Seek(long offset, Origin origin)
 		return -1;
 	return (::fseek(this->fp, offset, o) == 0);
 }
-
 
 void OutStream::Flush()
 {

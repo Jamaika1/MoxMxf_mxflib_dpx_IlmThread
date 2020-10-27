@@ -38,6 +38,7 @@
 
 
 #include "DPXStream.h"
+#include "DPXExport.h"
 
 
 namespace dpx

@@ -53,12 +53,12 @@ namespace dpx
 		/*!
 		 * \brief constructor
 		 */
-		RunLengthEncoding();
+        RunLengthEncoding();
 
 		/*!
 		 * \brief destructor
 		 */
-		virtual ~RunLengthEncoding();
+        virtual ~RunLengthEncoding();
 
 		/*!
 		 * \brief reset instance
@@ -82,7 +82,7 @@ namespace dpx
 						  void *data,
 						  const DataSize size);
 
-	protected:
+    protected:
 		U8 *buf;			//!< intermediate buffer
 	};
 
