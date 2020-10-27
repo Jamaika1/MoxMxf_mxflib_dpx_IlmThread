@@ -1816,7 +1816,7 @@ warning("Entered dead code for reading old-style batches/arrays for %s\n", FullN
 							if(NewData && (NewData->Size == 16))
 							{
 								// Record the baseline UL that was used as the set key
-								BaselineUL = TheUL;
+								GetBaselineUL() = TheUL;
 
 								// Build a new UL
 								UL NewUL(NewData->Data);
@@ -2344,9 +2344,9 @@ size_t MDObject::WriteLinkedSubObjects(DataChunkPtr &Buffer, PrimerPtr UsePrimer
 /*! The nearest baseline UL is the key of the closest type in the derevation chain to be a baseline class
  *  \ret NULL if no baseline UL found
  */
-ULPtr MDOType::GetBaselineUL(void)
+ULPtr GetBaselineUL(void)
 {
-	MDOTypePtr ScanType = this;
+	MDOTypePtr ScanType;
 	while(ScanType)
 	{
 		if(ScanType->IsBaseline()) break;

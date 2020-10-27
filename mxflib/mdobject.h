@@ -181,13 +181,12 @@ namespace mxflib
 	public:
 		MDOTypeParent Base;				//!< Base class if this is a derived class, else NULL
 		StringList MetadictOrder;		//!< AVMETA: Order to write properties in ClassDef of Avid Metadictionary
-
+		ULPtr TypeUL;					//!< The UL for this type, or NULL
 
 	protected:
 		StringList ChildOrder;			//!< Child names in order, for packs	## DEPRECATED - Use ChildList ##
 		MDOTypeList ChildList;			//!< Child types in order, for packs
 		MDOTypeParent Parent;			//!< Parent type if this is a child
-		ULPtr TypeUL;					//!< The UL for this type, or NULL
 
 		/* Dictionary data */
 		DataChunk		Key;			//!< Main key field (pre-rendered key or empty if LocalTag being used)
@@ -447,8 +446,13 @@ namespace mxflib
 			return BaselineClass;
 		}
 
+		ULPtr GetBaselineUL(void) const;
+
 		//! Get read-only access to the base type
-		const MDOTypeParent &GetBase(void) const { return Base; }
+		const MDOTypeParent &GetBase(void) const
+		{
+		    return Base;
+        }
 
 	public:
 		/* Static structure methods */
@@ -1933,6 +1937,9 @@ namespace mxflib
 
 			return Ret;
 		}
+
+		ULPtr GetBaselineUL(void) const;
+
 
 		//! Link access functions
 		/*! DEPRECATED: Use GetRef() instead */
