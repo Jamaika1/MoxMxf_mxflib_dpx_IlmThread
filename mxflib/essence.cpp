@@ -28,7 +28,7 @@
 
 #include "mxflib.h"
 
-
+#include <cstddef>
 
 
 using namespace mxflib;
@@ -159,7 +159,7 @@ GCStreamID GCWriter::AddSystemElement(bool CPCompatible, unsigned int RegistryDe
 	Stream->SubOrNumber = SubID;
 
 	// Initially we don't index this stream
-	Stream->IndexMan = NULL;
+	Stream->IndexMan = nullptr;
 	Stream->IndexFiller = 0;
 
 	// Not used with system items
@@ -261,7 +261,7 @@ GCStreamID GCWriter::AddEssenceElement(unsigned int EssenceType, unsigned int El
 	}
 
 	// Initially we don't index this stream
-	Stream->IndexMan = NULL;
+	Stream->IndexMan = nullptr;
 	Stream->IndexFiller = 0;
 
 	// Set BER length size for essence items
@@ -365,7 +365,7 @@ GCStreamID GCWriter::AddEssenceElement(DataChunkPtr &Key, int LenSize /*=0*/, bo
 	}
 
 	// Initially we don't index this stream
-	Stream->IndexMan = NULL;
+	Stream->IndexMan = nullptr;
 	Stream->IndexFiller = 0;
 
 	// Set BER length size for essence items
@@ -452,7 +452,7 @@ void GCWriter::AddSystemData(GCStreamID ID, UInt64 Size, const UInt8 *Data)
 	WriteBlock WB;
 	WB.Size = Size + ValStart;
 	WB.Buffer = Buffer;
-	WB.KLVSource = NULL;
+	WB.KLVSource = nullptr;
 	WB.FastClipWrap = false;
 	WB.LenSize = Stream->LenSize;
 
@@ -472,7 +472,7 @@ void GCWriter::AddSystemData(GCStreamID ID, UInt64 Size, const UInt8 *Data)
 
 
 //! Add essence item data to the current CP
-void GCWriter::AddEssenceData(GCStreamID ID, UInt64 Size, const UInt8 *Data, BodyStreamPtr BStream /*=NULL*/)
+void GCWriter::AddEssenceData(GCStreamID ID, UInt64 Size, const UInt8 *Data, BodyStreamPtr BStream /*=nullptr*/)
 {
 	// Index the data block for this stream
 	if((ID < 0) || (ID >= StreamCount))
@@ -537,7 +537,7 @@ void GCWriter::AddEssenceData(GCStreamID ID, UInt64 Size, const UInt8 *Data, Bod
 	WriteBlock WB;
 	WB.Size = Size + ValStart;
 	WB.Buffer = Buffer;
-	WB.KLVSource = NULL;
+	WB.KLVSource = nullptr;
 	WB.Stream = BStream;
 	WB.FastClipWrap = false;
 	WB.LenSize = Stream->LenSize;
@@ -558,7 +558,7 @@ void GCWriter::AddEssenceData(GCStreamID ID, UInt64 Size, const UInt8 *Data, Bod
 
 
 //! Add an essence item to the current CP with the essence to be read from an EssenceSource object
-void GCWriter::AddEssenceData(GCStreamID ID, EssenceSourcePtr Source, bool FastClipWrap /*=false*/, BodyStreamPtr BStream /*=NULL*/)
+void GCWriter::AddEssenceData(GCStreamID ID, EssenceSourcePtr Source, bool FastClipWrap /*=false*/, BodyStreamPtr BStream /*=nullptr*/)
 {
 	// Index the data block for this stream
 	if((ID < 0) || (ID >= StreamCount))
@@ -616,7 +616,7 @@ void GCWriter::AddEssenceData(GCStreamID ID, EssenceSourcePtr Source, bool FastC
 	WB.Size = 16;
 	WB.Buffer = Buffer;
 	WB.Source = Source;
-	WB.KLVSource = NULL;
+	WB.KLVSource = nullptr;
 	WB.Stream = BStream;
 	WB.FastClipWrap = FastClipWrap;
 	WB.LenSize = Stream->LenSize;
@@ -638,7 +638,7 @@ void GCWriter::AddEssenceData(GCStreamID ID, EssenceSourcePtr Source, bool FastC
 
 
 //! Add an essence item to the current CP with the essence to be read from a KLVObject
-void GCWriter::AddEssenceData(GCStreamID ID, KLVObjectPtr Source, bool FastClipWrap /*=false*/, BodyStreamPtr BStream /*=NULL*/)
+void GCWriter::AddEssenceData(GCStreamID ID, KLVObjectPtr Source, bool FastClipWrap /*=false*/, BodyStreamPtr BStream /*=nullptr*/)
 {
 	// Index the data block for this stream
 	if((ID < 0) || (ID >= StreamCount))
@@ -1408,7 +1408,7 @@ void GCWriter::WriteRaw(KLVObjectPtr Object)
 /*! \note The default handler receives all KLVs without a specific handler (except fillers)
  *        The filler handler receives all filler KLVs
  */
-GCReader::GCReader( MXFFilePtr File, GCReadHandlerPtr DefaultHandler /*=NULL*/, GCReadHandlerPtr FillerHandler /*=NULL*/ )
+GCReader::GCReader( MXFFilePtr File, GCReadHandlerPtr DefaultHandler /*=nullptr*/, GCReadHandlerPtr FillerHandler /*=nullptr*/ )
 	: File(File), DefaultHandler(DefaultHandler), FillerHandler(FillerHandler)
 {
 	FileOffset = 0;
@@ -1666,7 +1666,7 @@ Position BodyReader::Seek(UInt32 BodySID, Position Pos)
 
 		RIP::iterator it = File->FileRIP.lower_bound(PredictedPos+1);
 		if(it == File->FileRIP.end())
-			return NULL;
+			return (Position) nullptr;
 		if(it != File->FileRIP.begin())
 			it--;
 
@@ -1769,16 +1769,16 @@ bool BodyReader::Eof(void)
 
 
 //! Make a GCReader for the specified BodySID
-/*! \return A pointer to the new Reader, or the NULL on error (such as there is already a GCReader for this BodySID)
+/*! \return A pointer to the new Reader, or the nullptr on error (such as there is already a GCReader for this BodySID)
  */
-GCReader *BodyReader::NewGCReader(UInt32 BodySID, GCReadHandlerPtr DefaultHandler /*=NULL*/, GCReadHandlerPtr FillerHandler /*=NULL*/)
+GCReader* BodyReader::NewGCReader(UInt32 BodySID, GCReadHandlerPtr DefaultHandler /*=nullptr*/, GCReadHandlerPtr FillerHandler /*=nullptr*/)
 {
 	// Don't try to make two readers for the same SID
-	if(GetGCReader(BodySID)) return false;
+	if(GetGCReader(BodySID)) return (GCReader*) nullptr;
 
 	// Make the new reader
 	GCReaderPtr Reader = new GCReader(File, DefaultHandler ? DefaultHandler : GCRDefaultHandler, FillerHandler ? FillerHandler : GCRFillerHandler);
-	if(!Reader) return false;
+	if(!Reader) return (GCReader*) nullptr;
 
 	// Set the encryption handler if one is configured
 	if(GCREncryptionHandler) Reader->SetEncryptionHandler(GCREncryptionHandler);
@@ -1793,7 +1793,7 @@ GCReader *BodyReader::NewGCReader(UInt32 BodySID, GCReadHandlerPtr DefaultHandle
 //! Make a GCReader for the specified BodySID
 /*! \return true on success, false on error (such as there is already a GCReader for this BodySID)
  */
-bool BodyReader::MakeGCReader(UInt32 BodySID, GCReadHandlerPtr DefaultHandler /*=NULL*/, GCReadHandlerPtr FillerHandler /*=NULL*/)
+bool BodyReader::MakeGCReader(UInt32 BodySID, GCReadHandlerPtr DefaultHandler /*=nullptr*/, GCReadHandlerPtr FillerHandler /*=nullptr*/)
 {
 	if(NewGCReader(BodySID, DefaultHandler, FillerHandler)) return true; else return false;
 }
@@ -2238,7 +2238,7 @@ EssenceParser::WrappingConfigList EssenceParser::ListWrappingOptions(bool AllowM
 	ParserDescriptorListPtr PDList = EssenceParser::IdentifyEssence(InFile);
 
 	// Return the list of options for these parsers
-	// DRAGONS: This called function will cope with an empty or NULL PDList
+	// DRAGONS: This called function will cope with an empty or nullptr PDList
 	return ListWrappingOptions(AllowMultiples, InFile, PDList, ForceEditRate, ForceWrap);
 }
 
@@ -2486,7 +2486,7 @@ EssenceParser::WrappingConfigPtr EssenceParser::SelectWrappingOption(bool AllowM
 				}
 
 				// We failed to match - scrub the part made config
-				Ret = NULL;
+				Ret = nullptr;
 
 				it2++;
 			}
@@ -2495,7 +2495,7 @@ EssenceParser::WrappingConfigPtr EssenceParser::SelectWrappingOption(bool AllowM
 		pdit++;
 	}
 
-	// Failed to select - return what will be NULL
+	// Failed to select - return what will be nullptr
 	return Ret;
 }
 
@@ -2737,7 +2737,7 @@ Length BodyWriter::WriteEssence(StreamInfoPtr &Info, Length Duration /*=0*/, Len
 						if(PrechargeSize && (*it)->GetPrechargeSize() < PrechargeSize)
 						{
 							// Write an empty item for all skipped items
-							Dat = NULL;
+							Dat = nullptr;
 						}
 						else
 						{
@@ -3262,7 +3262,7 @@ void mxflib::BodyWriter::WriteHeader(bool IsClosed, bool IsComplete)
 	{
 		// Flag no index data
 		BasePartition->SetUInt(IndexSID_UL,  0);
-		PendingIndexData = NULL;
+		PendingIndexData = nullptr;
 
 		// Queue the write
 		PartitionWritePending = true;
@@ -3296,15 +3296,15 @@ void mxflib::BodyWriter::WritePartitionPack(void)
 
 	if(PendingIndexData)
 	{
-		File->WritePartitionWithIndex(BasePartition, PendingIndexData, WriteMetadata, NULL, MinPartitionFiller, MinPartitionSize);
+		File->WritePartitionWithIndex(BasePartition, PendingIndexData, WriteMetadata, nullptr, MinPartitionFiller, MinPartitionSize);
 
 		// Clear the index data SID to prevent it being written again next time
 		BasePartition->SetUInt(IndexSID_UL,  0);
-		PendingIndexData = NULL;
+		PendingIndexData = nullptr;
 	}
 	else
 	{
-		File->WritePartition(BasePartition, WriteMetadata, NULL, MinPartitionFiller, MinPartitionSize);
+		File->WritePartition(BasePartition, WriteMetadata, nullptr, MinPartitionFiller, MinPartitionSize);
 	}
 
 	// Clear the pending data
@@ -4133,7 +4133,7 @@ bool mxflib::BodyWriter::AddStream(BodyStreamPtr &Stream, Length StopAfter /*=0*
 	StreamList.push_back(NewStream);
 
 	// Ensure that this stream has a writer
-	GCWriter* SWP = NULL;
+	GCWriter* SWP = nullptr;
 	if( Stream ) SWP = Stream->GetWriter();
 
 	if( !SWP )
@@ -4158,7 +4158,7 @@ bool mxflib::BodyWriter::AddStream(BodyStreamPtr &Stream, Length StopAfter /*=0*
 
 
 //! Add a new sub-stream
-void BodyStream::AddSubStream(EssenceSourcePtr &SubSource, DataChunkPtr Key /*=NULL*/, bool NonGC /*=false*/)
+void BodyStream::AddSubStream(EssenceSourcePtr &SubSource, DataChunkPtr Key /*=nullptr*/, bool NonGC /*=false*/)
 {
 	// Add the new stream
 	push_back(SubSource);
@@ -4585,14 +4585,14 @@ EssenceParser::WrappingConfigPtr FileParser::SelectWrappingOption(bool AllowMult
 		CurrentDescriptor = Ret->EssenceDescriptor;
 	}
 	else
-		SubParser = NULL;
+		SubParser = nullptr;
 
 	return Ret;
 */
 	// Return the list of options for these parsers
-	// DRAGONS: This called function will cope with an empty or NULL PDList
+	// DRAGONS: This called function will cope with an empty or nullptr PDList
 	EssenceParser::WrappingConfigList WCL = ListWrappingOptions(AllowMultiples, PDList, ForceEditRate, ForceWrap);
-	if(WCL.empty()) return NULL;
+	if(WCL.empty()) return nullptr;
 
 	WCL.front()->KAGSize = KAGSize;
 
@@ -4954,10 +4954,10 @@ bool FileParser::GetNextSource(void)
 DataChunkPtr FileParser::SequentialEssenceSource::GetEssenceData(size_t Size /*=0*/, size_t MaxSize /*=0*/ )
 {
 	// We need a valid source to continue
-	if(!ValidSource()) return NULL;
+	if(!ValidSource()) return nullptr;
 
 	// If we have emptied all files then exit now
-	if(Outer->AtEOF) return NULL;
+	if(Outer->AtEOF) return nullptr;
 
 	// Get the next data from the current source
 	DataChunkPtr Ret = CurrentSource->GetEssenceData(Size, MaxSize);
@@ -4987,7 +4987,7 @@ EssenceSourcePtr FileParser::GetEssenceSource(UInt32 Stream)
 	if(Stream != CurrentStream)
 	{
 		error("A stream of ID 0x%04x was requested from a file parser that is configured for ID 0x%04x\n", Stream, CurrentStream);
-		return NULL;
+		return nullptr;
 	}
 
 	// Ensure that the master source is installed - this is required if there are any sub-streams
@@ -5009,7 +5009,7 @@ EssenceSourcePtr FileParser::GetSubSource(UInt32 Stream)
 	}
 
 	// If we don't have a parser for the main stream - quit now
-	if(!SubParser) return NULL;
+	if(!SubParser) return nullptr;
 
 
 	//! Build a new info block
@@ -5164,7 +5164,7 @@ size_t RangedEssenceSource::GetEssenceDataSize(void)
 	*  the first wrapping unit end encountered before Size. On no account will portions of two or more different wrapping
 	*  units be returned together. The mechanism for selecting a type of wrapping (e.g. frame, line or clip) is not
 	*  (currently) part of the common EssenceSource interface.
-	*  \return Pointer to a data chunk holding the next data or a NULL pointer when no more remains
+	*  \return Pointer to a data chunk holding the next data or a nullptr pointer when no more remains
 	*	\note If there is more data to come but it is not currently available the return value will be a pointer to an empty data chunk
 	*	\note If Size = 0 the object will decide the size of the chunk to return
 	*	\note On no account will the returned chunk be larger than MaxSize (if MaxSize > 0)
@@ -5197,12 +5197,12 @@ DataChunkPtr RangedEssenceSource::GetEssenceData(size_t Size /*=0*/, size_t MaxS
 	if(FirstData)
 	{
 		DataChunkPtr Ret = FirstData;
-		FirstData = NULL;
+		FirstData = nullptr;
 		return Ret;
 	}
 
 	// Have we already done everything?
-	if(Ended) return NULL;
+	if(Ended) return nullptr;
 
 	// Do the read
 	DataChunkPtr Ret = Base->GetEssenceData(Size, MaxSize);
@@ -5224,7 +5224,7 @@ DataChunkPtr RangedEssenceSource::GetEssenceData(size_t Size /*=0*/, size_t MaxS
 	if(Ending && Base->IsEditPoint())
 	{
 		Ended = true;
-		return NULL;
+		return nullptr;
 	}
 
 	// Update our position
@@ -5314,7 +5314,7 @@ size_t RangedEssenceSubSource::GetEssenceDataSize(void)
 	*  the first wrapping unit end encountered before Size. On no account will portions of two or more different wrapping
 	*  units be returned together. The mechanism for selecting a type of wrapping (e.g. frame, line or clip) is not
 	*  (currently) part of the common EssenceSource interface.
-	*  \return Pointer to a data chunk holding the next data or a NULL pointer when no more remains
+	*  \return Pointer to a data chunk holding the next data or a nullptr pointer when no more remains
 	*	\note If there is more data to come but it is not currently available the return value will be a pointer to an empty data chunk
 	*	\note If Size = 0 the object will decide the size of the chunk to return
 	*	\note On no account will the returned chunk be larger than MaxSize (if MaxSize > 0)
@@ -5336,7 +5336,7 @@ DataChunkPtr RangedEssenceSubSource::GetEssenceData(size_t Size /*=0*/, size_t M
 	}
 
 	// Exit now is all is done
-	if(Pos > RequestedEnd) return NULL;
+	if(Pos > RequestedEnd) return nullptr;
 
 	// Do the read
 	DataChunkPtr Ret = Base->GetEssenceData(Size, MaxSize);
@@ -5635,8 +5635,8 @@ namespace mxflib
 	}
 
 
-	//! Set the UMID to write in the Package Item (NULL will clear the UMID)
-	void SystemSource::SetUMID(UMIDPtr Value /*=NULL*/)
+	//! Set the UMID to write in the Package Item (nullptr will clear the UMID)
+	void SystemSource::SetUMID(UMIDPtr Value /*=nullptr*/)
 	{
 		if(!Value)
 		{
@@ -5653,8 +5653,8 @@ namespace mxflib
 		UMIDData.Set(32, Value->GetValue(), 3);			// Copy in the UMID value
 	}
 
-	//! Set the KLV Metadata to write in the Package Item (NULL will clear the KLV Metadata)
-	void SystemSource::SetKLVMetadata(MDObjectPtr Object /*=NULL*/)
+	//! Set the KLV Metadata to write in the Package Item (nullptr will clear the KLV Metadata)
+	void SystemSource::SetKLVMetadata(MDObjectPtr Object /*=nullptr*/)
 	{
 		if(!Object)
 		{
@@ -5710,7 +5710,7 @@ namespace mxflib
 
 
 	//! Get the value for the given system item KLV for this content package
-	/*! \return The value of the item specified, or NULL if invalid
+	/*! \return The value of the item specified, or nullptr if invalid
 	 *  \param Item The 0-based item number
 	 */
 	DataChunkPtr SystemSource::GetSystemItemValue(int Item)
@@ -5980,7 +5980,7 @@ namespace mxflib
 		return 0;
 	}
 
-	//! Get the BodyStream for the specified BodySID, or NULL if not one of our streams
+	//! Get the BodyStream for the specified BodySID, or nullptr if not one of our streams
 	BodyStreamPtr BodyWriter::GetStream(UInt32 BodySID)
 	{
 		StreamInfoList::iterator it = StreamList.begin();
@@ -5993,7 +5993,7 @@ namespace mxflib
 			it++;
 		}
 
-		return NULL;
+		return nullptr;
 	}
 
 }
