@@ -34,6 +34,7 @@
 
 #include <cstring>
 #include <ctime>
+#include <vector>
 
 #include "DPX.h"
 #include "DPXStream.h"
@@ -134,14 +135,17 @@ DPX_EXPORT bool dpx::Writer::WriteHeader()
 
 DPX_EXPORT void dpx::Writer::SetUserData(const long size)
 {
-	// TODO
+	this->header.SetUserSize(size);
 }
 
 
 DPX_EXPORT bool dpx::Writer::WriteUserData(void *data)
 {
-	// XXX TODO
-	return false;
+    size_t size = this->header.UserSize();
+	if (!fd->WriteCheck(data, size))
+		return false;
+    this->fileLoc += size;
+	return true;
 }
 
 
@@ -175,6 +179,18 @@ DPX_EXPORT void dpx::Writer::SetElement(const int num, const Descriptor desc, co
 	this->header.CalculateNumberOfElements();
 }
 
+DPX_EXPORT bool dpx::Writer::WritePadData(const int alignment)
+{
+    int imageoffset = ((this->fileLoc + alignment - 1)/alignment)*alignment;
+    int padsize = imageoffset - this->fileLoc;
+    if (padsize > 0) {
+        std::vector<dpx::U8> pad (padsize, 0xff);
+        this->fileLoc += this->fd->Write (&pad[0], padsize);
+        if (this->fileLoc != imageoffset)
+            return false;
+    }
+    return true;
+}
 
 // the data is processed so write it straight through
 // argument count is total size in bytes of the passed data
@@ -188,12 +204,16 @@ DPX_EXPORT bool dpx::Writer::WriteElement(const int element, void *data, const l
 	if (this->header.ImageDescriptor(element) == kUndefinedDescriptor)
 		return false;
 
+	// The DPX spec recommends that the image data starts on a 8K boundary.
+	if (! this->WritePadData(0x2000))
+		return false;
+
 	// update file ptr
 	this->header.SetDataOffset(element, this->fileLoc);
 	this->fileLoc += count;
 
 	// write
-	return (this->fd->Write(data, count) > 0);
+	return this->fd->WriteCheck(data, count);
 }
 
 
@@ -211,8 +231,6 @@ DPX_EXPORT bool dpx::Writer::WriteElement(const int element, void *data)
 	return this->WriteElement(element, data, this->header.ComponentDataSize(element));
 }
 
-
-
 DPX_EXPORT bool dpx::Writer::WriteElement(const int element, void *data, const DataSize size)
 {
 	bool status = true;
@@ -223,6 +241,10 @@ DPX_EXPORT bool dpx::Writer::WriteElement(const int element, void *data, const D
 
 	// make sure the entry is valid
 	if (this->header.ImageDescriptor(element) == kUndefinedDescriptor)
+		return false;
+
+	// The DPX spec recommends that the image data starts on a 8K boundary.
+	if (! this->WritePadData(0x2000))
 		return false;
 
 	// mark location in headers
@@ -244,7 +266,6 @@ DPX_EXPORT bool dpx::Writer::WriteElement(const int element, void *data, const D
 	const U32 height = this->header.Height();
 	const int noc = this->header.ImageElementComponentCount(element);
 	const Packing packing = this->header.ImagePacking(element);
-	const bool swapEndian = this->header.RequiresByteSwap();
 
 	// check width & height, just in case
 	if (width == 0 || height == 0)
@@ -263,8 +284,9 @@ DPX_EXPORT bool dpx::Writer::WriteElement(const int element, void *data, const D
 	}
 
 	// can we write the entire memory chunk at once without any additional processing
-	if (!rle  && !swapEndian &&
+	if (!rle  && !this->header.RequiresByteSwap() &&
 		((bitDepth == 8 && size == dpx::kByte) ||
+		 (bitDepth == 12 && size == dpx::kWord && packing == kFilledMethodA) ||
 		 (bitDepth == 16 && size == dpx::kWord) ||
 		 (bitDepth == 32 && size == dpx::kFloat) ||
 		 (bitDepth == 64 && size == dpx::kDouble)))
@@ -280,48 +302,48 @@ DPX_EXPORT bool dpx::Writer::WriteElement(const int element, void *data, const D
 		{
 		case 8:
 			if (size == dpx::kByte)
-				this->fileLoc += WriteBuffer<U8, 8, true>(this->fd, size, data, width, height, noc, packing, rle, reverse, eolnPad, blank, status, swapEndian);
+				this->fileLoc += WriteBuffer<U8, 8, true>(this->fd, size, data, width, height, noc, packing, rle, reverse, eolnPad, blank, status, this->header.RequiresByteSwap());
 			else
-				this->fileLoc += WriteBuffer<U8, 8, false>(this->fd, size, data, width, height, noc, packing, rle, reverse, eolnPad, blank, status, swapEndian);
+				this->fileLoc += WriteBuffer<U8, 8, false>(this->fd, size, data, width, height, noc, packing, rle, reverse, eolnPad, blank, status, this->header.RequiresByteSwap());
 			break;
 
 		case 10:
 			// are the channels stored in reverse
-			//if (this->header.ImageDescriptor(element) == kRGB && this->header.DatumSwap(element) && bitDepth == 10)
-				reverse = true; // seems like we would always have to "reverse" the order, although actually the normal written order appears reversed
+			if (this->header.ImageDescriptor(element) == kRGB && this->header.DatumSwap(element) && bitDepth == 10)
+				reverse = true;
 
 			if (size == dpx::kWord)
-				this->fileLoc += WriteBuffer<U16, 10, true>(this->fd, size, data, width, height, noc, packing, rle, reverse, eolnPad, blank, status, swapEndian);
+				this->fileLoc += WriteBuffer<U16, 10, true>(this->fd, size, data, width, height, noc, packing, rle, reverse, eolnPad, blank, status, this->header.RequiresByteSwap());
 			else
-				this->fileLoc += WriteBuffer<U16, 10, false>(this->fd, size, data, width, height, noc, packing, rle, reverse, eolnPad, blank, status, swapEndian);
+				this->fileLoc += WriteBuffer<U16, 10, false>(this->fd, size, data, width, height, noc, packing, rle, reverse, eolnPad, blank, status, this->header.RequiresByteSwap());
 			break;
 
 		case 12:
-			if (size == dpx::kWord && !swapEndian)
-				this->fileLoc += WriteBuffer<U16, 12, true>(this->fd, size, data, width, height, noc, packing, rle, reverse, eolnPad, blank, status, swapEndian);
+			if (size == dpx::kWord)
+				this->fileLoc += WriteBuffer<U16, 12, true>(this->fd, size, data, width, height, noc, packing, rle, reverse, eolnPad, blank, status, this->header.RequiresByteSwap());
 			else
-				this->fileLoc += WriteBuffer<U16, 12, false>(this->fd, size, data, width, height, noc, packing, rle, reverse, eolnPad, blank, status, swapEndian);
+				this->fileLoc += WriteBuffer<U16, 12, false>(this->fd, size, data, width, height, noc, packing, rle, reverse, eolnPad, blank, status, this->header.RequiresByteSwap());
 			break;
 
 		case 16:
-			if (size == dpx::kWord && !swapEndian)
-				this->fileLoc += WriteBuffer<U16, 16, true>(this->fd, size, data, width, height, noc, packing, rle, reverse, eolnPad, blank, status, swapEndian);
+			if (size == dpx::kWord)
+				this->fileLoc += WriteBuffer<U16, 16, true>(this->fd, size, data, width, height, noc, packing, rle, reverse, eolnPad, blank, status, this->header.RequiresByteSwap());
 			else
-				this->fileLoc += WriteBuffer<U16, 16, false>(this->fd, size, data, width, height, noc, packing, rle, reverse, eolnPad, blank, status, swapEndian);
+				this->fileLoc += WriteBuffer<U16, 16, false>(this->fd, size, data, width, height, noc, packing, rle, reverse, eolnPad, blank, status, this->header.RequiresByteSwap());
 			break;
 
 		case 32:
-			if (size == dpx::kFloat && !swapEndian)
-				this->fileLoc += WriteFloatBuffer<R32, 32, true>(this->fd, size, data, width, height, noc, packing, rle, eolnPad, blank, status, swapEndian);
+			if (size == dpx::kFloat)
+				this->fileLoc += WriteFloatBuffer<R32, 32, true>(this->fd, size, data, width, height, noc, packing, rle, eolnPad, blank, status, this->header.RequiresByteSwap());
 			else
-				this->fileLoc += WriteFloatBuffer<R32, 32, false>(this->fd, size, data, width, height, noc, packing, rle, eolnPad, blank, status, swapEndian);
+				this->fileLoc += WriteFloatBuffer<R32, 32, false>(this->fd, size, data, width, height, noc, packing, rle, eolnPad, blank, status, this->header.RequiresByteSwap());
 			break;
 
 		case 64:
-			if (size == dpx::kDouble && !swapEndian)
-				this->fileLoc += WriteFloatBuffer<R64, 64, true>(this->fd, size, data, width, height, noc, packing, rle, eolnPad, blank, status, swapEndian);
+			if (size == dpx::kDouble)
+				this->fileLoc += WriteFloatBuffer<R64, 64, true>(this->fd, size, data, width, height, noc, packing, rle, eolnPad, blank, status, this->header.RequiresByteSwap());
 			else
-				this->fileLoc += WriteFloatBuffer<R64, 64, false>(this->fd, size, data, width, height, noc, packing, rle, eolnPad, blank, status, swapEndian);
+				this->fileLoc += WriteFloatBuffer<R64, 64, false>(this->fd, size, data, width, height, noc, packing, rle, eolnPad, blank, status, this->header.RequiresByteSwap());
 			break;
 		}
 	}
@@ -331,7 +353,7 @@ DPX_EXPORT bool dpx::Writer::WriteElement(const int element, void *data, const D
 	{
 		// end of image padding
 		this->fileLoc += eoimPad;
-		status = (this->fd->Write(blank, eoimPad) > 0);
+		status = this->fd->WriteCheck(blank, eoimPad);
 	}
 
 	// rid of memory
@@ -347,7 +369,7 @@ DPX_EXPORT bool dpx::Writer::WriteElement(const int element, void *data, const D
 DPX_EXPORT bool dpx::Writer::WriteThrough(void *data, const U32 width, const U32 height, const int noc, const int bytes, const U32 eolnPad, const U32 eoimPad, char *blank)
 {
 	bool status = true;
-	const int count = width * height * noc;
+	const size_t count = size_t(width) * size_t(height) * noc;
 	unsigned int i;
 	unsigned char *imageBuf = reinterpret_cast<unsigned char*>(data);
 
@@ -361,14 +383,14 @@ DPX_EXPORT bool dpx::Writer::WriteThrough(void *data, const U32 width, const U32
 		for (i = 0; i < height; i++)
 		{
 			// write one line
-			if (this->fd->Write(imageBuf+(width*bytes*i), bytes * width) == false)
+			if (!this->fd->WriteCheck(imageBuf+(width*bytes*i), bytes * width))
 			{
 				status = false;
 				break;
 			}
 
 			// write end of line padding
-			if (this->fd->Write(blank, eoimPad) == false)
+			if (!this->fd->WriteCheck(blank, eoimPad))
 			{
 				status = false;
 				break;
@@ -378,7 +400,7 @@ DPX_EXPORT bool dpx::Writer::WriteThrough(void *data, const U32 width, const U32
 	else
 	{
 		// write data as one chunk
-		if (this->fd->Write(imageBuf, bytes * count) == false)
+		if (!this->fd->WriteCheck(imageBuf, bytes * count))
 		{
 			status = false;
 		}
@@ -388,7 +410,7 @@ DPX_EXPORT bool dpx::Writer::WriteThrough(void *data, const U32 width, const U32
 	if (status && eoimPad)
 	{
 		this->fileLoc += eoimPad;
-		status = (this->fd->Write(blank, eoimPad) > 0);
+		status = this->fd->WriteCheck(blank, eoimPad);
 	}
 
 	return status;

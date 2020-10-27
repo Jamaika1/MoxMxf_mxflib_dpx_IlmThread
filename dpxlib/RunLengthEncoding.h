@@ -50,15 +50,16 @@ namespace dpx
 	class RunLengthEncoding : public Codec
 	{
 	public:
+    // Constructor and destructor
 		/*!
 		 * \brief constructor
 		 */
-        RunLengthEncoding();
+		RunLengthEncoding();
 
 		/*!
 		 * \brief destructor
 		 */
-        virtual ~RunLengthEncoding();
+		virtual ~RunLengthEncoding();
 
 		/*!
 		 * \brief reset instance

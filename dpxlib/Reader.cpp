@@ -64,6 +64,7 @@ DPX_EXPORT dpx::Reader::Reader() : fd(0), rio(0)
 DPX_EXPORT dpx::Reader::~Reader()
 {
 	this->Reset();
+    delete this->rio;
 }
 
 

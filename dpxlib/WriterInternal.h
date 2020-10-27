@@ -103,7 +103,7 @@ namespace dpx
 	template <typename IB, int BITDEPTH>
 	DPX_EXPORT void RleCompress(IB *src, IB *dst, const int bufsize, const int len, BufferAccess &access)
 	{
-		IB ch;
+		/*IB ch;
 		int count;
 		int i;
 		int index = bufsize - 1;
@@ -137,7 +137,7 @@ namespace dpx
 		}
 
 		access.offset = index;
-		access.length = bufsize - index;
+		access.length = bufsize - index;*/
 	}
 
 
@@ -256,7 +256,7 @@ namespace dpx
 
 	template <typename IB, int BITDEPTH, bool SAMEBUFTYPE>
 	DPX_EXPORT int WriteBuffer(OutStream *fd, DataSize src_size, void *src_buf, const U32 width, const U32 height, const int noc, const Packing packing,
-					const bool rle, const bool reverse, const int eolnPad, char *blank, bool &status, bool swapEndian)
+					const bool rle, bool reverse, const int eolnPad, char *blank, bool &status, bool swapEndian)
 	{
 		int fileOffset = 0;
 
@@ -275,6 +275,10 @@ namespace dpx
 		IB *src;
 		IB *dst = new IB[(width * noc) + 1 + rleBufAdd];
 
+		// not exactly sure why, but the datum order is wrong when writing 4-channel images, so reverse it
+		if (noc == 4 && BITDEPTH == 10)
+			reverse = !reverse;
+
 		// each line in the buffer
 		for (U32 h = 0; h < height; h++)
 		{
@@ -283,7 +287,7 @@ namespace dpx
 			const int bytes = Header::DataSizeByteCount(src_size);
 
 			// copy buffer if need to promote data types from src to destination
-			if (!SAMEBUFTYPE)
+			if (SAMEBUFTYPE)
 			{
 				src = dst;
 				CopyWriteBuffer<IB>(src_size, (imageBuf+(h*width*noc*bytes)+(h*eolnPad)), dst, (width*noc));
@@ -321,27 +325,24 @@ namespace dpx
 				{
 					WritePackedMethod<IB, BITDEPTH>(src, dst, (width*noc), reverse, bufaccess);
 				}
-				else if (packing == dpx::kFilledMethodA)
-				{
-					// zero out the bottom 4 bits
-					for (int w = 0; w < bufaccess.length; w++)
-						dst[w] = src[bufaccess.offset+w] & 0xfff0;
-					bufaccess.offset = 0;
-				}
-				else // if (packing == dpx::kFilledMethodB)
+				else if (packing == dpx::kFilledMethodB)
 				{
 					// shift 4 MSB down, so 0x0f00 would become 0x00f0
 					for (int w = 0; w < bufaccess.length; w++)
 						dst[w] = src[bufaccess.offset+w] >> 4;
 					bufaccess.offset = 0;
 				}
+				// a bitdepth of 12 by default is packed with dpx::kFilledMethodA
+				// assumes that either a copy or rle was required
+				// otherwise this routine should not be called with:
+				//     12-bit Method A with the source buffer data type is kWord
 			}
 
 			// write line
 			fileOffset += (bufaccess.length * sizeof(IB));
 			if (swapEndian)
 			    EndianBufferSwap(BITDEPTH, packing, dst + bufaccess.offset, bufaccess.length * sizeof(IB));
-			if (fd->Write(dst+bufaccess.offset, (bufaccess.length * sizeof(IB))) == false)
+			if (!fd->WriteCheck(dst+bufaccess.offset, (bufaccess.length * sizeof(IB))))
 			{
 				status = false;
 				break;
@@ -351,7 +352,7 @@ namespace dpx
 			if (eolnPad)
 			{
 				fileOffset += eolnPad;
-				if (fd->Write(blank, eolnPad) == false)
+				if (!fd->WriteCheck(blank, eolnPad))
 				{
 					status = false;
 					break;
@@ -416,7 +417,7 @@ namespace dpx
 			fileOffset += (bufaccess.length * sizeof(IB));
 			if (swapEndian)
 			    EndianBufferSwap(BITDEPTH, packing, dst + bufaccess.offset, bufaccess.length * sizeof(IB));
-			if (fd->Write(dst+bufaccess.offset, (bufaccess.length * sizeof(IB))) == false)
+			if (!fd->WriteCheck(dst+bufaccess.offset, (bufaccess.length * sizeof(IB))))
 			{
 				status = false;
 				break;
@@ -426,7 +427,7 @@ namespace dpx
 			if (eolnPad)
 			{
 				fileOffset += eolnPad;
-				if (fd->Write(blank, eolnPad) == false)
+				if (!fd->WriteCheck(blank, eolnPad))
 				{
 					status = false;
 					break;

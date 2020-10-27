@@ -40,7 +40,6 @@
 #include <algorithm>
 #include "BaseTypeConverter.h"
 
-
 #define PADDINGBITS_10BITFILLEDMETHODA	2
 #define PADDINGBITS_10BITFILLEDMETHODB	0
 
@@ -242,7 +241,7 @@ namespace dpx
 			offset += block.x1 * numberOfComponents / 3 * 4;
 
 
-			// get the read count in bytes, round to the 32-bit boundry
+			// get the read count in bytes, round to the 32-bit boundary
 			int readSize = (block.x2 - block.x1 + 1) * numberOfComponents;
 			readSize += readSize % 3;
 			readSize = readSize / 3 * 4;
@@ -690,7 +689,7 @@ namespace dpx
 	}
 
 #ifdef RLE_WORKING
-	template <typename BUF, DataSize BUFTYPE>
+	template <typename IR, typename BUF, DataSize BUFTYPE>
 	void ProcessImageBlock(const Header &dpxHeader,  const int element, U32 *readBuf, const int x, BUF *data, const int bufoff)
 	{
 		const int bitDepth = dpxHeader.BitDepth(element);
@@ -700,12 +699,14 @@ namespace dpx
 		if (bitDepth == 10)
 		{
 			if (packing == kFilledMethodA)
-				Read10bitFilledMethodA<IR, BUF>(dpxHeader, readBuf, fd, element, block, reinterpret_cast<BUF *>(data));
+            {
+				Read10bitFilledMethodA<IR, BUF>(dpxHeader, readBuf, &fd, element, &block, reinterpret_cast<BUF *>(data));
 				Unfill10bitFilled<BUF, PADDINGBITS_10BITFILLEDMETHODA>(readBuf, x, data, count, bufoff, numberOfComponents);
+            }
 			else if (packing == kFilledMethodB)
-				Read10bitFilledMethodB<IR, BUF>(dpxHeader, readBuf, fd, element, block, reinterpret_cast<BUF *>(data));
+				Read10bitFilledMethodB<IR, BUF>(dpxHeader, readBuf, IR *fd, element, block, reinterpret_cast<BUF *>(data));
 			else if (packing == kPacked)
-				Read10bitPacked<IR, BUF>(dpxHeader, readBuf, fd, element, block, reinterpret_cast<BUF *>(data));
+				Read10bitPacked<IR, BUF>(dpxHeader, readBuf, IR *fd, element, block, reinterpret_cast<BUF *>(data));
 				UnPackPacked<BUF, MASK_10BITPACKED, MULTIPLIER_10BITPACKED, REMAIN_10BITPACKED, REVERSE_10BITPACKED>(readBuf, dataSize, data, count, bufoff);
 		}
 		else if (bitDepth == 12)

@@ -147,7 +147,7 @@ namespace dpx
 	/*!
 	 * \brief returns a char * of the default DPX file extension
 	 *
-	 * \return .dpx file extenion
+	 * \return .dpx file extension
 	 */
 	inline const char *DefaultExtension();
 
@@ -417,10 +417,19 @@ namespace dpx
 		DPX_EXPORT bool WriteUserData(void *data);
 
 		/*!
+         * \brief Write out some padded data to the specified boundary
+         *
+         * \param alignment -- Where the block boundary should be
+         * \return success true/false
+         */
+        DPX_EXPORT bool WritePadData(const int alignment);
+
+		/*!
 		 * \brief Write the entire element to the dpx file
 		 *
 		 * \param element element number (0-7)
 		 * \param data buffer
+         * \param alignment -- defines the imageAlignment to make sure the image is on typically an 8K alignment.
 		 * \return success true/false
 		 */
 		DPX_EXPORT bool WriteElement(const int element, void *data);
